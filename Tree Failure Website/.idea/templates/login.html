@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Tree Failure Analysis</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="static/login.css">
+  {% block head %}{% endblock %}
 </head>
 <body>
 <header>
   <h1>Login</h1>
-  {% extends "navbar.html" %}
+  {% include "navbar.html" %}
   {% block content %}
 </header>
 <section class="login-form">
@@ -30,8 +31,5 @@
 </footer>
 </body>
 </html>
-
-
-
 
 {%endblock%}
