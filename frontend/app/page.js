@@ -18,15 +18,32 @@ export default function Home() {
     decayPresent: "",
   });
 
+  const [result, setResult] = useState(null); // add this near useState()
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted:", formData);
-    // TODO: send formData to your API/model endpoint
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/evaluate_tree", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Server error");
+
+      const data = await response.json();
+      console.log("Prediction:", data);
+      setResult(data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setResult({ error: "Could not analyze tree. Please try again." });
+    }
   };
 
   return (
@@ -210,6 +227,28 @@ export default function Home() {
             Analyze Tree
           </button>
         </form>
+        {result && (
+          <div className="mt-6 p-4 rounded-lg bg-gray-800 border border-gray-700 text-sm">
+            {result.error ? (
+              <p className="text-red-400">{result.error}</p>
+            ) : (
+              <>
+                <p>
+                  <strong className="text-green-400">Root Failure Probability:</strong>{" "}
+                  {result.rootFailureProbability}
+                </p>
+                <p>
+                  <strong className="text-green-400">Stem Failure Probability:</strong>{" "}
+                  {result.stemFailureProbability}
+                </p>
+                <p>
+                  <strong className="text-green-400">Branch Failure Probability:</strong>{" "}
+                  {result.branchFailureProbability}
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
