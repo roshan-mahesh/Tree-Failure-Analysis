@@ -1,254 +1,267 @@
 // pages/index.jsx
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
   const [formData, setFormData] = useState({
+    treeSpecies: "",
     diameter: "",
     height: "",
-    species: "",
     condition: "",
-    soil: "",
-    siteFactor: "",
-    weather: "",
-    rootFailure: "",
-    stemFailure: "",
-    branchFailure: "",
-    decayLocation: "",
-    decayPresent: "",
+    siteFactors: [],
+    soilType: "",
+    weatherFactors: [],
+    rootFailure: [],
+    stemFailure: [],
+    branchFailure: [],
+    locationOfDecay: "",
+    decayAmount: "",
+    decayType: "",
   });
-
-  const [result, setResult] = useState(null); // add this near useState()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const toggleMulti = (field, option) => {
+    setFormData((p) => {
+      const current = p[field] || [];
+      const exists = current.includes(option);
+      const next = exists ? current.filter((o) => o !== option) : [...current, option];
+      return { ...p, [field]: next };
+    });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/evaluate_tree", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error("Server error");
-
-      const data = await response.json();
-      console.log("Prediction:", data);
-      setResult(data);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      setResult({ error: "Could not analyze tree. Please try again." });
-    }
+    // Format payload for backend
+    const payload = {
+      treeSpecies: formData.treeSpecies,
+      diameter: Number(formData.diameter),
+      height: Number(formData.height),
+      condition: formData.condition,
+      siteFactors: formData.siteFactors,
+      soilType: formData.soilType,
+      weatherFactors: formData.weatherFactors,
+      rootFailure: formData.rootFailure,
+      stemFailure: formData.stemFailure,
+      branchFailure: formData.branchFailure,
+      locationOfDecay: formData.locationOfDecay,
+      decayAmount: formData.decayAmount,
+      decayType: formData.decayType,
+    };
+    console.log("Submitting payload:", payload);
+    alert("Form submitted — check console for payload.");
   };
+
+  // --- Options (short lists here; expand from your dataset as needed) ---
+  const speciesOptions = [
+    "Populus Trichocarpa",
+    "Acer Rubrum",
+    "Quercus Robur",
+    "Pseudotsuga Menziesii",
+    "Fraxinus Pennsylvanica",
+    "Pinus Contorta",
+    "Cedrus Atlantica",
+    "Other",
+  ];
+
+  const conditionOptions = ["Good", "Fair", "Poor", "Dead"];
+
+  const siteFactorOptions = [
+    "None",
+    "Urban Environment",
+    "Removal of Nearby Tree",
+    "Soil Compaction",
+    "Grade Changes",
+    "Roots Restricted",
+    "Steep Slope",
+    "Soil Eroded",
+    "Lawn",
+    "Natural Area",
+  ];
+
+  const soilTypeOptions = ["Dirt", "Clay", "Loam", "Silt", "Sandy"];
+
+  const weatherOptions = ["None", "Wind", "Rain", "Ice", "Snow", "High Temps", "Low Temps"];
+
+  const rootFailureOptions = [
+    "Mechanical Damage",
+    "Broken Roots",
+    "Gridled Roots",
+    "Cut Roots",
+    "Surface Roots Wounded",
+    "Root Plate Lifted",
+    "Soil Failure",
+    "Other",
+  ];
+
+  const stemFailureOptions = [
+    "Topping",
+    "Seam",
+    "Bulge",
+    "Crack",
+    "Cavity",
+    "Decay Present",
+    "Dead Stem",
+    "Included Bark",
+    "Other",
+  ];
+
+  const branchFailureOptions = [
+    "Lion Tailing",
+    "Seam",
+    "Old Pruning Wound at Failure Point",
+    "Codominant Attachment",
+    "Cavity",
+    "Branch was Dead",
+    "Mechanical Damage",
+    "Over Extended Branch",
+    "Break at Attachment",
+    "Other",
+  ];
+
+  const locationOfDecayOptions = [
+    "None",
+    "Root",
+    "Sapwood",
+    "Heartwood",
+    "Canker",
+    "Other",
+  ];
+
+  const decayAmountOptions = [
+    "None",
+    "<25%",
+    "25-50%",
+    "50-75%",
+    ">75%",
+    "100%",
+  ];
+
+  const decayTypeOptions = [
+    "None",
+    "Phaeolus Schweinitzii",
+    "Kretzchmaria Duesta",
+    "Phellinus Weirii",
+    "Perenniporia Subacida",
+    "Heterobasidion Occidentale",
+    "Ceriporopsis Rivulosa",
+    "Porodadalea Pini",
+    "Ganoderma Applanatum",
+    "Neofusicoccum Arbuti",
+    "Ganoderma Brownii",
+    "Phytophthora Cinnamomii",
+    "Phytophthora Cactorum",
+    "Armillaria spp.",
+    "Phellinus Hartigii",
+    "Other",
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-8">
-      <div className="w-full max-w-3xl bg-gray-900 rounded-2xl shadow-xl p-8 space-y-8">
-        <h1 className="text-3xl font-bold text-green-400 text-center">
-          Tree Failure Analysis
-        </h1>
+    <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl bg-gray-900 rounded-2xl shadow-xl p-8 space-y-6">
+        <header className="mb-2">
+          <h1 className="text-3xl font-bold text-green-400">Tree Failure Analysis</h1>
+          <p className="text-sm text-gray-400 mt-1">Fill the form below and submit to run the model.</p>
+        </header>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Tree Basics */}
           <Section title="Tree Basics">
-            <InputField
-              label="Diameter of Tree (cm)"
-              name="diameter"
-              type="number"
-              value={formData.diameter}
-              onChange={handleChange}
-            />
-            <InputField
-              label="Height of Tree (m)"
-              name="height"
-              type="number"
-              value={formData.height}
-              onChange={handleChange}
-            />
             <SelectField
               label="Tree Species"
-              name="species"
-              value={formData.species}
+              name="treeSpecies"
+              value={formData.treeSpecies}
               onChange={handleChange}
-              options={[
-                "Cedrus Atlantica",
-                "Pinus Resinosa",
-                "Robinia Pseudoacacia",
-                "Quercus Robur",
-                "Pseudotsuga Menziesii",
-                "Acer Rubrum",
-                "Ulmus Americana",
-                "Prunus Avium",
-                "Fraxinus Pennsylvanica",
-                "Populus Trichocarpa",
-                // ...add more from your dataset
-              ]}
+              options={speciesOptions}
             />
-            <SelectField
-              label="Condition"
-              name="condition"
-              value={formData.condition}
-              onChange={handleChange}
-              options={["Good", "Fair", "Poor", "Dead"]}
-            />
+
+            <NumberField label="Diameter of Tree (cm)" name="diameter" value={formData.diameter} onChange={handleChange} />
+
+            <NumberField label="Height of Tree (m)" name="height" value={formData.height} onChange={handleChange} />
+
+            <SelectField label="Condition" name="condition" value={formData.condition} onChange={handleChange} options={conditionOptions} />
           </Section>
 
-          {/* Environment */}
           <Section title="Environment">
-            <SelectField
-              label="Type of Soil"
-              name="soil"
-              value={formData.soil}
-              onChange={handleChange}
-              options={["Clay", "Loam", "Silt", "Dirt", "Sandy"]}
-            />
-            <SelectField
+            <MultiSelectField
               label="Site Factors"
-              name="siteFactor"
-              value={formData.siteFactor}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Urban Environment",
-                "Lawn",
-                "Natural Area",
-                "Roots Restricted",
-                "Steep Slope",
-                "Soil Compaction",
-              ]}
+              options={siteFactorOptions}
+              selected={formData.siteFactors}
+              onToggle={(opt) => toggleMulti("siteFactors", opt)}
             />
-            <SelectField
+
+            <SelectField label="Type of Soil" name="soilType" value={formData.soilType} onChange={handleChange} options={soilTypeOptions} />
+
+            <MultiSelectField
               label="Weather Factors"
-              name="weather"
-              value={formData.weather}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Wind",
-                "Rain",
-                "Ice",
-                "Snow",
-                "High Temps",
-                "Low Temps",
-              ]}
+              options={weatherOptions}
+              selected={formData.weatherFactors}
+              onToggle={(opt) => toggleMulti("weatherFactors", opt)}
             />
           </Section>
 
-          {/* Failures */}
           <Section title="Failure Indicators">
-            <SelectField
+            <MultiSelectField
               label="Root Failure"
-              name="rootFailure"
-              value={formData.rootFailure}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Mechanical Damage",
-                "Broken Roots",
-                "Cut Roots",
-                "Decay Organism Present",
-                "Soil Failure",
-              ]}
+              options={rootFailureOptions}
+              selected={formData.rootFailure}
+              onToggle={(opt) => toggleMulti("rootFailure", opt)}
             />
-            <SelectField
+
+            <MultiSelectField
               label="Stem Failure"
-              name="stemFailure"
-              value={formData.stemFailure}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Topping",
-                "Crack",
-                "Cavity",
-                "Decay Present",
-                "Bulge",
-              ]}
+              options={stemFailureOptions}
+              selected={formData.stemFailure}
+              onToggle={(opt) => toggleMulti("stemFailure", opt)}
             />
-            <SelectField
+
+            <MultiSelectField
               label="Branch Failure"
-              name="branchFailure"
-              value={formData.branchFailure}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Crack",
-                "Decay Present",
-                "Bulge",
-                "Over-Extended Branch",
-                "Break at Attachment",
-              ]}
+              options={branchFailureOptions}
+              selected={formData.branchFailure}
+              onToggle={(opt) => toggleMulti("branchFailure", opt)}
             />
           </Section>
 
-          {/* Decay */}
           <Section title="Decay">
-            <SelectField
-              label="Location & % of Decay"
-              name="decayLocation"
-              value={formData.decayLocation}
-              onChange={handleChange}
-              options={[
-                "None",
-                "<25%",
-                ">25%",
-                ">50%",
-                ">75%",
-                "100%",
-                "Heartwood",
-                "Sapwood",
-                "Canker",
-                "Root",
-              ]}
-            />
-            <SelectField
-              label="Decay Present"
-              name="decayPresent"
-              value={formData.decayPresent}
-              onChange={handleChange}
-              options={[
-                "None",
-                "Phaeolus Schweinitzii",
-                "Armillaria spp.",
-                "Ganoderma Applanatum",
-                "Phytophthora Cinnamomii",
-                "Other",
-              ]}
-            />
+            <SelectField label="Location of Decay" name="locationOfDecay" value={formData.locationOfDecay} onChange={handleChange} options={locationOfDecayOptions} />
+
+            <SelectField label="Decay Amount" name="decayAmount" value={formData.decayAmount} onChange={handleChange} options={decayAmountOptions} />
+
+            <SelectField label="Type of Decay" name="decayType" value={formData.decayType} onChange={handleChange} options={decayTypeOptions} />
           </Section>
 
-          <button
-            type="submit"
-            className="w-full py-3 px-6 rounded-xl font-semibold bg-green-500 hover:bg-green-600 text-white shadow-lg"
-          >
-            Analyze Tree
-          </button>
-        </form>
-        {result && (
-          <div className="mt-6 p-4 rounded-lg bg-gray-800 border border-gray-700 text-sm">
-            {result.error ? (
-              <p className="text-red-400">{result.error}</p>
-            ) : (
-              <>
-                <p>
-                  <strong className="text-green-400">Root Failure Probability:</strong>{" "}
-                  {result.rootFailureProbability}
-                </p>
-                <p>
-                  <strong className="text-green-400">Stem Failure Probability:</strong>{" "}
-                  {result.stemFailureProbability}
-                </p>
-                <p>
-                  <strong className="text-green-400">Branch Failure Probability:</strong>{" "}
-                  {result.branchFailureProbability}
-                </p>
-              </>
-            )}
+          <div className="flex space-x-3">
+            <button type="submit" className="flex-1 py-3 rounded-xl font-semibold bg-green-500 hover:bg-green-600 text-white">
+              Analyze Tree
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData({
+                  treeSpecies: "",
+                  diameter: "",
+                  height: "",
+                  condition: "",
+                  siteFactors: [],
+                  soilType: "",
+                  weatherFactors: [],
+                  rootFailure: [],
+                  stemFailure: [],
+                  branchFailure: [],
+                  locationOfDecay: "",
+                  decayAmount: "",
+                  decayType: "",
+                });
+              }}
+              className="py-3 px-5 rounded-xl font-medium bg-gray-800 text-gray-200 border border-gray-700"
+            >
+              Reset
+            </button>
           </div>
-        )}
+        </form>
       </div>
     </div>
   );
@@ -258,38 +271,34 @@ export default function Home() {
 
 function Section({ title, children }) {
   const [open, setOpen] = useState(true);
-
   return (
     <div className="border border-gray-700 rounded-xl">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center px-4 py-3 text-left font-semibold text-green-400"
-      >
+      <button type="button" onClick={() => setOpen((s) => !s)} className="w-full flex justify-between items-center px-4 py-3 text-left font-semibold text-green-300">
         {title}
-        <span>{open ? "−" : "+"}</span>
+        <span className="text-xl">{open ? "−" : "+"}</span>
       </button>
       {open && <div className="p-4 space-y-4">{children}</div>}
     </div>
   );
 }
 
-function InputField({ label, name, type, value, onChange }) {
+function NumberField({ label, name, value, onChange }) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-medium">{label}</label>
       <input
-        type={type}
+        type="number"
         name={name}
         value={value}
         onChange={onChange}
+        onWheel={(e) => e.target.blur()} // disable scroll increment/decrement
         className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
       />
     </div>
   );
 }
 
-function SelectField({ label, name, value, onChange, options }) {
+function SelectField({ label, name, value, onChange, options = [] }) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-medium">{label}</label>
@@ -306,6 +315,51 @@ function SelectField({ label, name, value, onChange, options }) {
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function MultiSelectField({ label, options = [], selected = [], onToggle }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+
+  useEffect(() => {
+    function onDocClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
+  return (
+    <div className="space-y-1 relative" ref={ref}>
+      <label className="text-sm font-medium">{label}</label>
+      <button type="button" onClick={() => setOpen((s) => !s)} className="w-full text-left px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg flex items-center justify-between">
+        <div className="flex-1 min-w-0">
+          {selected.length === 0 ? <span className="text-gray-400">Select...</span> : (
+            <div className="flex flex-wrap gap-2">
+              {selected.map((s, idx) => (
+                <span key={idx} className="text-xs px-2 py-1 bg-green-900/60 rounded-full">{s}</span>
+              ))}
+            </div>
+          )}
+        </div>
+        <svg className="w-5 h-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 011.14.98l-4.25 4.65a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg max-h-56 overflow-auto z-20 p-3">
+          {options.map((opt, i) => {
+            const checked = selected.includes(opt);
+            return (
+              <label key={i} className="flex items-center space-x-3 py-1">
+                <input type="checkbox" checked={checked} onChange={() => onToggle(opt)} className="form-checkbox h-4 w-4 text-green-500 bg-gray-900 rounded" />
+                <span className="text-sm">{opt}</span>
+              </label>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
