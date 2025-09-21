@@ -34,9 +34,11 @@ export default function Home() {
   };
 
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const payload = {
       treeSpecies: formData.treeSpecies,
@@ -57,26 +59,23 @@ export default function Home() {
     try {
       const response = await fetch("https://tree-failure-analysis.onrender.com/api/evaluate_tree", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      console.log("Response:", response);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+      if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
       setResult(data);
     } catch (error) {
       console.error("Error during submission:", error);
       setResult({ error: "An error occurred. Please try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // --- Options (short lists here; expand from your dataset as needed) ---
+  // --- Options ---
   const speciesOptions = [
     "Cedrus Atlantica",
     "Pinus Resinosa",
@@ -156,96 +155,15 @@ export default function Home() {
   ];
 
   const conditionOptions = ["Good", "Fair", "Poor", "Dead"];
-
-  const siteFactorOptions = [
-    "None",
-    "Urban Environment",
-    "Removal of Nearby Tree",
-    "Soil Compaction",
-    "Grade Changes",
-    "Roots Restricted",
-    "Steep Slope",
-    "Soil Eroded",
-    "Lawn",
-    "Natural Area",
-  ];
-
+  const siteFactorOptions = ["None", "Urban Environment", "Removal of Nearby Tree", "Soil Compaction", "Grade Changes", "Roots Restricted", "Steep Slope", "Soil Eroded", "Lawn", "Natural Area"];
   const soilTypeOptions = ["Dirt", "Clay", "Loam", "Silt", "Sandy"];
-
   const weatherOptions = ["None", "Wind", "Rain", "Ice", "Snow", "High Temps", "Low Temps"];
-
-  const rootFailureOptions = [
-    "Mechanical Damage",
-    "Broken Roots",
-    "Gridled Roots",
-    "Cut Roots",
-    "Surface Roots Wounded",
-    "Root Plate Lifted",
-    "Soil Failure",
-    "Other",
-  ];
-
-  const stemFailureOptions = [
-    "Topping",
-    "Seam",
-    "Bulge",
-    "Crack",
-    "Cavity",
-    "Decay Present",
-    "Dead Stem",
-    "Included Bark",
-    "Other",
-  ];
-
-  const branchFailureOptions = [
-    "Lion Tailing",
-    "Seam",
-    "Old Pruning Wound at Failure Point",
-    "Codominant Attachment",
-    "Cavity",
-    "Branch was Dead",
-    "Mechanical Damage",
-    "Over Extended Branch",
-    "Break at Attachment",
-    "Other",
-  ];
-
-  const locationOfDecayOptions = [
-    "None",
-    "Root",
-    "Sapwood",
-    "Heartwood",
-    "Canker",
-    "Other",
-  ];
-
-  const decayAmountOptions = [
-    "None",
-    "<25%",
-    "25-50%",
-    "50-75%",
-    ">75%",
-    "100%",
-  ];
-
-  const decayTypeOptions = [
-    "None",
-    "Phaeolus Schweinitzii",
-    "Kretzchmaria Duesta",
-    "Phellinus Weirii",
-    "Perenniporia Subacida",
-    "Heterobasidion Occidentale",
-    "Ceriporopsis Rivulosa",
-    "Porodadalea Pini",
-    "Ganoderma Applanatum",
-    "Neofusicoccum Arbuti",
-    "Ganoderma Brownii",
-    "Phytophthora Cinnamomii",
-    "Phytophthora Cactorum",
-    "Armillaria spp.",
-    "Phellinus Hartigii",
-    "Other",
-  ];
+  const rootFailureOptions = ["Mechanical Damage", "Broken Roots", "Gridled Roots", "Cut Roots", "Surface Roots Wounded", "Root Plate Lifted", "Soil Failure", "Other"];
+  const stemFailureOptions = ["Topping", "Seam", "Bulge", "Crack", "Cavity", "Decay Present", "Dead Stem", "Included Bark", "Other"];
+  const branchFailureOptions = ["Lion Tailing", "Seam", "Old Pruning Wound at Failure Point", "Codominant Attachment", "Cavity", "Branch was Dead", "Mechanical Damage", "Over Extended Branch", "Break at Attachment", "Other"];
+  const locationOfDecayOptions = ["None", "Root", "Sapwood", "Heartwood", "Canker", "Other"];
+  const decayAmountOptions = ["None", "<25%", "25-50%", "50-75%", ">75%", "100%"];
+  const decayTypeOptions = ["None", "Phaeolus Schweinitzii", "Kretzchmaria Duesta", "Phellinus Weirii", "Perenniporia Subacida", "Heterobasidion Occidentale", "Ceriporopsis Rivulosa", "Porodadalea Pini", "Ganoderma Applanatum", "Neofusicoccum Arbuti", "Ganoderma Brownii", "Phytophthora Cinnamomii", "Phytophthora Cactorum", "Armillaria spp.", "Phellinus Hartigii", "Other"];
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-6">
@@ -257,73 +175,39 @@ export default function Home() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Section title="Tree Basics">
-            <SelectField
-              label="Tree Species"
-              name="treeSpecies"
-              value={formData.treeSpecies}
-              onChange={handleChange}
-              options={speciesOptions}
-            />
-
+            <SelectField label="Tree Species" name="treeSpecies" value={formData.treeSpecies} onChange={handleChange} options={speciesOptions} />
             <NumberField label="Diameter of Tree (cm)" name="diameter" value={formData.diameter} onChange={handleChange} />
-
             <NumberField label="Height of Tree (m)" name="height" value={formData.height} onChange={handleChange} />
-
             <SelectField label="Condition" name="condition" value={formData.condition} onChange={handleChange} options={conditionOptions} />
           </Section>
 
           <Section title="Environment">
-            <MultiSelectField
-              label="Site Factors"
-              options={siteFactorOptions}
-              selected={formData.siteFactors}
-              onToggle={(opt) => toggleMulti("siteFactors", opt)}
-            />
-
+            <MultiSelectField label="Site Factors" options={siteFactorOptions} selected={formData.siteFactors} onToggle={(opt) => toggleMulti("siteFactors", opt)} />
             <SelectField label="Type of Soil" name="soilType" value={formData.soilType} onChange={handleChange} options={soilTypeOptions} />
-
-            <MultiSelectField
-              label="Weather Factors"
-              options={weatherOptions}
-              selected={formData.weatherFactors}
-              onToggle={(opt) => toggleMulti("weatherFactors", opt)}
-            />
+            <MultiSelectField label="Weather Factors" options={weatherOptions} selected={formData.weatherFactors} onToggle={(opt) => toggleMulti("weatherFactors", opt)} />
           </Section>
 
           <Section title="Failure Indicators">
-            <MultiSelectField
-              label="Root Failure"
-              options={rootFailureOptions}
-              selected={formData.rootFailure}
-              onToggle={(opt) => toggleMulti("rootFailure", opt)}
-            />
-
-            <MultiSelectField
-              label="Stem Failure"
-              options={stemFailureOptions}
-              selected={formData.stemFailure}
-              onToggle={(opt) => toggleMulti("stemFailure", opt)}
-            />
-
-            <MultiSelectField
-              label="Branch Failure"
-              options={branchFailureOptions}
-              selected={formData.branchFailure}
-              onToggle={(opt) => toggleMulti("branchFailure", opt)}
-            />
+            <MultiSelectField label="Root Failure" options={rootFailureOptions} selected={formData.rootFailure} onToggle={(opt) => toggleMulti("rootFailure", opt)} />
+            <MultiSelectField label="Stem Failure" options={stemFailureOptions} selected={formData.stemFailure} onToggle={(opt) => toggleMulti("stemFailure", opt)} />
+            <MultiSelectField label="Branch Failure" options={branchFailureOptions} selected={formData.branchFailure} onToggle={(opt) => toggleMulti("branchFailure", opt)} />
           </Section>
 
           <Section title="Decay">
             <SelectField label="Location of Decay" name="locationOfDecay" value={formData.locationOfDecay} onChange={handleChange} options={locationOfDecayOptions} />
-
             <SelectField label="Decay Amount" name="decayAmount" value={formData.decayAmount} onChange={handleChange} options={decayAmountOptions} />
-
             <SelectField label="Type of Decay" name="decayType" value={formData.decayType} onChange={handleChange} options={decayTypeOptions} />
           </Section>
 
           <div className="flex space-x-3">
-            <button type="submit" className="flex-1 py-3 rounded-xl font-semibold bg-green-500 hover:bg-green-600 text-white">
-              Analyze Tree
+            <button
+              type="submit"
+              disabled={loading}
+              className={`flex-1 py-3 rounded-xl font-semibold text-white ${
+                loading ? "bg-gray-600 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {loading ? "Processing..." : "Analyze Tree"}
             </button>
             <button
               type="button"
@@ -350,6 +234,7 @@ export default function Home() {
             </button>
           </div>
         </form>
+
         {result && (
           <div className="mt-6 p-4 rounded-xl border border-gray-700 bg-gray-800 space-y-2">
             {result.error ? (
@@ -373,13 +258,22 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {/* Overlay while processing */}
+        {loading && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-gray-900 p-6 rounded-xl shadow-xl text-center space-y-3">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-green-400 mx-auto"></div>
+              <p className="text-green-300 font-semibold">Processing your request...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 /* ---------------- Components ---------------- */
-
 function Section({ title, children }) {
   const [open, setOpen] = useState(true);
   return (
@@ -455,7 +349,9 @@ function MultiSelectField({ label, options = [], selected = [], onToggle }) {
             </div>
           )}
         </div>
-        <svg className="w-5 h-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 011.14.98l-4.25 4.65a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>
+        <svg className="w-5 h-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 011.14.98l-4.25 4.65a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
       </button>
 
       {open && (
