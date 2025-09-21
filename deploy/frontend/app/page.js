@@ -33,9 +33,11 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [result, setResult] = useState(null);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Format payload for backend
+
     const payload = {
       treeSpecies: formData.treeSpecies,
       diameter: Number(formData.diameter),
@@ -51,8 +53,27 @@ export default function Home() {
       decayAmount: formData.decayAmount,
       decayType: formData.decayType,
     };
-    console.log("Submitting payload:", payload);
-    alert("Form submitted — check console for payload.");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/evaluate_tree", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("Response:", response);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Error during submission:", error);
+      setResult({ error: "An error occurred. Please try again." });
+    }
   };
 
   // --- Options (short lists here; expand from your dataset as needed) ---
@@ -329,6 +350,29 @@ export default function Home() {
             </button>
           </div>
         </form>
+        {result && (
+          <div className="mt-6 p-4 rounded-xl border border-gray-700 bg-gray-800 space-y-2">
+            {result.error ? (
+              <p className="text-red-400 font-semibold">{result.error}</p>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-green-400">Prediction Results</h2>
+                <p>
+                  <strong>Root Failure Probability:</strong>{" "}
+                  <span className="text-green-300">{(result.rootFailureProbability * 100).toFixed(2)}%</span>
+                </p>
+                <p>
+                  <strong>Stem Failure Probability:</strong>{" "}
+                  <span className="text-green-300">{(result.stemFailureProbability * 100).toFixed(2)}%</span>
+                </p>
+                <p>
+                  <strong>Branch Failure Probability:</strong>{" "}
+                  <span className="text-green-300">{(result.branchFailureProbability * 100).toFixed(2)}%</span>
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

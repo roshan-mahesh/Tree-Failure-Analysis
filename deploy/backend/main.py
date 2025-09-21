@@ -59,20 +59,19 @@ for col in categorical_cols:
 
 # Expected input keys and mapping to training feature names
 field_map = {
-    "species": "Tree Species",
+    "treeSpecies": "Tree Species",
     "condition": "Condition",
-    "siteFactor": "Site Factors",
-    "soil": "Type of Soil",
-    "weather": "Weather factors",
+    "siteFactors": "Site Factors",
+    "soilType": "Type of Soil",
+    "weatherFactors": "Weather factors",
     "rootFailure": "Root Failure",
     "stemFailure": "Stem Failure",
     "branchFailure": "Branch Failure",
-    "decayLocation": "Location and Percentage of Decay",
-    "decayPresent": "Decay Present",
+    "locationOfDecay": "Location and Percentage of Decay",
+    "decayAmount": "Decay Present",
 }
 
 numerical_fields = ["diameter", "height"]
-
 
 @app.post("/api/evaluate_tree")
 async def evaluate_tree(tree_data: Request):
@@ -92,7 +91,12 @@ async def evaluate_tree(tree_data: Request):
     # Categorical one-hot encoding
     for field_key, col_name in field_map.items():
         raw_val = data.get(field_key, "")
-        present_labels = [item.strip() for item in raw_val.split(",") if item.strip() != ""]
+        
+        if isinstance(raw_val, list):  # Handle list inputs
+            present_labels = [item.strip() for item in raw_val if item.strip() != ""]
+        else:  # Handle single string inputs
+            present_labels = [item.strip() for item in raw_val.split(",") if item.strip() != ""]
+
         for label in all_unique_labels[col_name]:
             col = f"{col_name}_{label}"
             input_row[col] = int(label in present_labels)
@@ -104,19 +108,14 @@ async def evaluate_tree(tree_data: Request):
 
     # Convert to DataFrame
     X_input = pd.DataFrame([input_row])
+    
     # Ensure correct order and only expected columns
     X_input = X_input.reindex(columns=feature_columns, fill_value=0)
-
 
     # Predict
     pred_root = model_root.predict_proba(X_input)[0][1]
     pred_stem = model_stem.predict_proba(X_input)[0][1]
     pred_branch = model_branch.predict_proba(X_input)[0][1]
-
-    # For binary (0 or 1), you could also do:
-    # pred_root = int(model_root.predict(X_input)[0])
-    # pred_stem = int(model_stem.predict(X_input)[0])
-    # pred_branch = int(model_branch.predict(X_input)[0])
 
     return {
         "rootFailureProbability": round(pred_root, 4),
