@@ -77,82 +77,19 @@ export default function Home() {
 
   // --- Options ---
   const speciesOptions = [
-    "Cedrus Atlantica",
-    "Pinus Resinosa",
-    "Robinia Pseudoacacia",
-    "Cupressus Nootkatensis",
-    "Prunus Salicina",
-    "Tilia Cordata",
-    "Picea Omorika",
-    "Pinus Monticola",
-    "Pseudotsuga Menziesii",
-    "Acer Rubrum",
-    "Ulumus Americana",
-    "Prunus Avium",
-    "Crataegus Laevigata",
-    "Quercus Robur",
-    "Cercidiphyllum Japonicum",
-    "Fraxinus Pennsylvanica",
-    "Fraxinus Latifolia",
-    "Quercus Rubra",
-    "Quercus Ilex",
-    "Populus Nigra",
-    "Chamecyparis Pisifera",
-    "Acer Platanoides",
-    "Alnus Rubra",
-    "Fraxinus Oxycarpa",
-    "Liriodendron Tulipifera",
-    "Pyrus Calleryana",
-    "Salix Babylonica",
-    "Abies Grandis",
-    "Pinus Sylvestris",
-    "Liquidambar Styraciflua",
-    "Acer Palmatum",
-    "Cercis Occidentalis",
-    "Quercus Coccinea",
-    "Pinus Thunbergii",
-    "Calocedrus Decurrens",
-    "Acer Circinatum",
-    "Pinus Contorta",
-    "Acer Macrophyllum",
-    "Malus Pumilla",
-    "Acer Saccharinum",
-    "Taxus Baccata",
-    "Pinus Nigra",
-    "Corylus Colurna",
-    "Salix Scouleriana",
-    "Catalpa Bignonioides",
-    "Populus Deltoids",
-    "Salix Hookeriana",
-    "Prunus Cerasifera",
-    "Quercus Palustris",
-    "Picea Glauca",
-    "Prunus Laurocerasus",
-    "Taxus Brevifolia",
-    "Prunus Serrulata",
-    "Quercus Alba",
-    "Arbutus Menziesii",
-    "Chamaecyparis Lawsoniana",
-    "Cedrus Deodara",
-    "Picea Pungens",
-    "Prunus X",
-    "Ulmus Procera",
-    "Salix Lasiandra",
-    "Betula Papyrifera",
-    "Quercus Garryana",
-    "Prunus Emarginata",
-    "Picea Abies",
-    "Populus Tremuloides",
-    "Tilia Tomentosa",
-    "Cornus Kuosa",
-    "Thuja Plicata",
-    "Cornus Nuttallii",
-    "Populus Trichocarpa",
-    "Populus Alba",
-    "Cupressus X",
-    "Tsuga Heterophylla",
-    "Fraxinus Americana",
-  ];
+    "Abies Grandis", "Acer Circinatum", "Acer Macrophyllum", "Acer Palmatum", "Acer Platanoides", "Acer Rubrum", "Acer Saccharinum",
+    "Alnus Rubra", "Arbutus Menziesii", "Betula Papyrifera", "Calocedrus Decurrens", "Catalpa Bignonioides", "Cedrus Atlantica",
+    "Cedrus Deodara", "Cercidiphyllum Japonicum", "Cercis Occidentalis", "Chamaecyparis Lawsoniana", "Chamecyparis Pisifera",
+    "Cornus Kuosa", "Cornus Nuttallii", "Corylus Colurna", "Crataegus Laevigata", "Cupressus Nootkatensis", "Cupressus X",
+    "Fraxinus Americana", "Fraxinus Latifolia", "Fraxinus Oxycarpa", "Fraxinus Pennsylvanica", "Liriodendron Tulipifera",
+    "Liquidambar Styraciflua", "Malus Pumilla", "Picea Abies", "Picea Glauca", "Picea Omorika", "Picea Pungens", "Pinus Contorta",
+    "Pinus Monticola", "Pinus Nigra", "Pinus Resinosa", "Pinus Sylvestris", "Pinus Thunbergii", "Populus Alba", "Populus Deltoids",
+    "Populus Nigra", "Populus Tremuloides", "Populus Trichocarpa", "Prunus Avium", "Prunus Cerasifera", "Prunus Emarginata",
+    "Prunus Laurocerasus", "Prunus Salicina", "Prunus Serrulata", "Prunus X", "Pseudotsuga Menziesii", "Pyrus Calleryana",
+    "Quercus Alba", "Quercus Coccinea", "Quercus Garryana", "Quercus Ilex", "Quercus Palustris", "Quercus Robur", "Quercus Rubra",
+    "Robinia Pseudoacacia", "Salix Babylonica", "Salix Hookeriana", "Salix Lasiandra", "Salix Scouleriana", "Taxus Baccata",
+    "Taxus Brevifolia", "Thuja Plicata", "Tilia Cordata", "Tilia Tomentosa", "Tsuga Heterophylla", "Ulmus Procera", "Ulumus Americana",
+  ].sort();
 
   const conditionOptions = ["Good", "Fair", "Poor", "Dead"];
   const siteFactorOptions = ["None", "Urban Environment", "Removal of Nearby Tree", "Soil Compaction", "Grade Changes", "Roots Restricted", "Steep Slope", "Soil Eroded", "Lawn", "Natural Area"];
@@ -171,13 +108,27 @@ export default function Home() {
         <header className="mb-2">
           <h1 className="text-3xl font-bold text-green-400">Tree Failure Analysis</h1>
           <p className="text-sm text-gray-400 mt-1">Fill the form below and submit to run the model.</p>
+          <p className="text-xs text-gray-500 italic mt-1">
+            This tool is part of an ongoing research project and is not an adequate replacement for an arborist’s assessment.
+          </p>
         </header>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.preventDefault(); // prevent Enter from submitting
+          }}
+          className="space-y-6"
+        >
           <Section title="Tree Basics">
-            <SelectField label="Tree Species" name="treeSpecies" value={formData.treeSpecies} onChange={handleChange} options={speciesOptions} />
-            <NumberField label="Diameter of Tree (cm)" name="diameter" value={formData.diameter} onChange={handleChange} />
-            <NumberField label="Height of Tree (m)" name="height" value={formData.height} onChange={handleChange} />
+            <IntegratedSpeciesSearch
+              label="Tree Species"
+              name="treeSpecies"
+              value={formData.treeSpecies}
+              setValue={(val) => setFormData((p) => ({ ...p, treeSpecies: val }))}
+              options={speciesOptions}
+            />
+            <NumberField label="Diameter of Tree (in)" name="diameter" value={formData.diameter} onChange={handleChange} />
+            <NumberField label="Height of Tree (ft)" name="height" value={formData.height} onChange={handleChange} />
             <SelectField label="Condition" name="condition" value={formData.condition} onChange={handleChange} options={conditionOptions} />
           </Section>
 
@@ -211,7 +162,7 @@ export default function Home() {
             </button>
             <button
               type="button"
-              onClick={() => {
+              onClick={() =>
                 setFormData({
                   treeSpecies: "",
                   diameter: "",
@@ -226,8 +177,8 @@ export default function Home() {
                   locationOfDecay: "",
                   decayAmount: "",
                   decayType: "",
-                });
-              }}
+                })
+              }
               className="py-3 px-5 rounded-xl font-medium bg-gray-800 text-gray-200 border border-gray-700"
             >
               Reset
@@ -236,30 +187,28 @@ export default function Home() {
         </form>
 
         {result && (
-          <div className="mt-6 p-4 rounded-xl border border-gray-700 bg-gray-800 space-y-2">
+          <div className="mt-6 p-4 rounded-xl border border-gray-700 bg-gray-800 space-y-3">
             {result.error ? (
               <p className="text-red-400 font-semibold">{result.error}</p>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-green-400">Prediction Results</h2>
+                <h2 className="text-xl font-bold text-green-400">Model Recommendation</h2>
                 <p>
-                  <strong>Root Failure Probability:</strong>{" "}
-                  <span className="text-green-300">{(result.rootFailureProbability * 100).toFixed(2)}%</span>
+                  Based on your input, a follow-up visit by an arborist is <strong>recommended</strong> to assess the tree’s condition.
                 </p>
-                <p>
-                  <strong>Stem Failure Probability:</strong>{" "}
-                  <span className="text-green-300">{(result.stemFailureProbability * 100).toFixed(2)}%</span>
-                </p>
-                <p>
-                  <strong>Branch Failure Probability:</strong>{" "}
-                  <span className="text-green-300">{(result.branchFailureProbability * 100).toFixed(2)}%</span>
+                <ul className="list-disc list-inside text-gray-300">
+                  {result.rootFailureProbability > 0.4 && <li>Consider checking root stability.</li>}
+                  {result.stemFailureProbability > 0.4 && <li>Inspect stem or trunk structure.</li>}
+                  {result.branchFailureProbability > 0.4 && <li>Review branch attachments or pruning needs.</li>}
+                </ul>
+                <p className="text-sm text-gray-400 mt-2 italic">
+                  This analysis is for research purposes and should not replace professional evaluation.
                 </p>
               </>
             )}
           </div>
         )}
 
-        {/* Overlay while processing */}
         {loading && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-gray-900 p-6 rounded-xl shadow-xl text-center space-y-3">
@@ -273,12 +222,16 @@ export default function Home() {
   );
 }
 
-/* ---------------- Components ---------------- */
+// --- Components ---
 function Section({ title, children }) {
   const [open, setOpen] = useState(true);
   return (
     <div className="border border-gray-700 rounded-xl">
-      <button type="button" onClick={() => setOpen((s) => !s)} className="w-full flex justify-between items-center px-4 py-3 text-left font-semibold text-green-300">
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="w-full flex justify-between items-center px-4 py-3 text-left font-semibold text-green-300"
+      >
         {title}
         <span className="text-xl">{open ? "−" : "+"}</span>
       </button>
@@ -296,7 +249,7 @@ function NumberField({ label, name, value, onChange }) {
         name={name}
         value={value}
         onChange={onChange}
-        onWheel={(e) => e.target.blur()} // disable scroll increment/decrement
+        onWheel={(e) => e.target.blur()}
         className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
       />
     </div>
@@ -324,6 +277,62 @@ function SelectField({ label, name, value, onChange, options = [] }) {
   );
 }
 
+function IntegratedSpeciesSearch({ label, name, value, setValue, options = [] }) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filtered = options.filter((opt) =>
+    opt.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-1 relative" ref={ref}>
+      <label className="text-sm font-medium">{label}</label>
+      <input
+        type="text"
+        placeholder="Type to search (e.g., Quercus, Prunus, Acer)"
+        value={search || value}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+      />
+
+      {open && filtered.length > 0 && (
+        <div className="absolute left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg max-h-56 overflow-auto z-20">
+          {filtered.map((opt, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => {
+                setValue(opt);
+                setSearch(opt);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 hover:bg-green-700/30 ${
+                value === opt ? "bg-green-700/40" : ""
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MultiSelectField({ label, options = [], selected = [], onToggle }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
@@ -339,18 +348,30 @@ function MultiSelectField({ label, options = [], selected = [], onToggle }) {
   return (
     <div className="space-y-1 relative" ref={ref}>
       <label className="text-sm font-medium">{label}</label>
-      <button type="button" onClick={() => setOpen((s) => !s)} className="w-full text-left px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg flex items-center justify-between">
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="w-full text-left px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg flex items-center justify-between"
+      >
         <div className="flex-1 min-w-0">
-          {selected.length === 0 ? <span className="text-gray-400">Select...</span> : (
+          {selected.length === 0 ? (
+            <span className="text-gray-400">Select...</span>
+          ) : (
             <div className="flex flex-wrap gap-2">
               {selected.map((s, idx) => (
-                <span key={idx} className="text-xs px-2 py-1 bg-green-900/60 rounded-full">{s}</span>
+                <span key={idx} className="text-xs px-2 py-1 bg-green-900/60 rounded-full">
+                  {s}
+                </span>
               ))}
             </div>
           )}
         </div>
         <svg className="w-5 h-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 011.14.98l-4.25 4.65a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 011.14.98l-4.25 4.65a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
         </svg>
       </button>
 
@@ -360,7 +381,12 @@ function MultiSelectField({ label, options = [], selected = [], onToggle }) {
             const checked = selected.includes(opt);
             return (
               <label key={i} className="flex items-center space-x-3 py-1">
-                <input type="checkbox" checked={checked} onChange={() => onToggle(opt)} className="form-checkbox h-4 w-4 text-green-500 bg-gray-900 rounded" />
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => onToggle(opt)}
+                  className="form-checkbox h-4 w-4 text-green-500 bg-gray-900 rounded"
+                />
                 <span className="text-sm">{opt}</span>
               </label>
             );
