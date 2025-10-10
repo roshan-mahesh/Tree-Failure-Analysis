@@ -131,7 +131,7 @@ export default function Home() {
             <NumberField label="Height of Tree (ft)" name="height" value={formData.height} onChange={handleChange} />
             <SelectField label="Condition" name="condition" value={formData.condition} onChange={handleChange} options={conditionOptions} />
           </Section>
-
+ 
           <Section title="Environment">
             <MultiSelectField label="Site Factors" options={siteFactorOptions} selected={formData.siteFactors} onToggle={(opt) => toggleMulti("siteFactors", opt)} />
             <SelectField label="Type of Soil" name="soilType" value={formData.soilType} onChange={handleChange} options={soilTypeOptions} />
